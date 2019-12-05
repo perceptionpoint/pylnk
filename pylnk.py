@@ -161,7 +161,10 @@ def read_dos_datetime(buf):
     hour = get_bits(time, 0, 5)
     minute = get_bits(time, 5, 6)
     second = get_bits(time, 11, 5)
-    return datetime(year, month, day, hour, minute, second)
+    try:
+        return datetime(year, month, day, hour, minute, second)
+    except ValueError:
+        return None
 
 def write_byte(val, buf):
     buf.write(pack('<B', val))
@@ -215,7 +218,10 @@ def convert_time_to_unix(windows_time):
     # UNIX time is specified as the number of seconds since January 1, 1970.
     # There are 134774 days (or 11644473600 seconds) between these dates.
     unix_time = windows_time / 10000000.0 - 11644473600
-    return datetime.fromtimestamp(unix_time)
+    try:
+        return datetime.fromtimestamp(unix_time)
+    except ValueError:
+        return None
 
 def convert_time_to_windows(unix_time):
     if isinstance(unix_time, datetime):
