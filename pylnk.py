@@ -122,21 +122,27 @@ def read_double(buf):
 def read_cunicode(buf):
     s = ""
     b = buf.read(2)
-    while b!= '\x00\x00':
+    while b and b!= '\x00\x00':
         s += b
         b = buf.read(2)
-    return s.decode('utf-16-le')
+    if b:
+        return s.decode('utf-16-le')
+    else:
+        raise FormatException("General error occurred while parsing LNK file")
 
 def read_cstring(buf, padding=False):
     s = ""
     b = buf.read(1)
-    while b != '\x00':
+    while b and b != '\x00':
         s += b
         b = buf.read(1)
     if padding and not len(s) % 2:
         buf.read(1) # make length + terminator even
-    #TODO: encoding is not clear, unicode-escape has been necessary sometimes
-    return s.decode('cp1252')
+    if b:
+        # TODO: encoding is not clear, unicode-escape has been necessary sometimes
+        return s.decode('cp1252')
+    else:
+        raise FormatException("General error occurred while parsing LNK file")
 
 def read_sized_string(buf, unicode=True):
     size = read_short(buf)
